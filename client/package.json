@@ -5,7 +5,8 @@
   "scripts": {
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "ci-lint": "vue-cli-service lint --no-fix"
+    "ci-lint": "vue-cli-service lint --no-fix",
+    "dev": "vue-cli-service serve"
   },
   "dependencies": {
     "bootstrap": "^4.6.2",

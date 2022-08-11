@@ -37,6 +37,25 @@
             </b-button>
           </b-td>
         </b-tr>
+        <b-tr>
+          <b-td>
+            <b>Config directory</b>
+          </b-td>
+          <b-td>
+            <b-form-input class="w-auto mx-auto"
+                v-model="configPath" @keydown="confLocChanged(true)">
+            </b-form-input>
+            <b-button v-if="config.location.changed" variant="success"
+                @click="saveConfigPath()">Save</b-button>
+            <b-button v-if="config.location.changed" variant="danger"
+                @click="cancelConfigPath()">Cancel</b-button>
+          </b-td>
+          <b-td>
+            <b-button variant="outline-success" v-b-modal.connected-clients>
+              View Clients
+            </b-button>
+          </b-td>
+        </b-tr>
       </b-tbody>
     </b-table-simple>
     <b-modal id="show-config" title="Setup New Show" ref="modal" @show="resetForm"
@@ -161,6 +180,12 @@ export default {
         'last_pong',
       ],
       clientTimeout: null,
+      config: {
+        location: {
+          path: '/server/conf',
+          changed: false,
+        },
+      },
     };
   },
   validations: {
@@ -262,12 +287,26 @@ export default {
         console.error('Unable to load show');
       }
     },
+    async confLocChanged(boolval) {
+      this.$data.config.location.changed = boolval;
+    },
+    async cancelConfigPath() {
+      this.confLocChanged(false);
+    },
     ...mapMutations(['UPDATE_SHOWS']),
   },
   computed: {
     currentShowLoaded() {
       return (this.$store.state.system.settings.current_show != null
         && this.$store.state.currentShow != null);
+    },
+    configPath: {
+      get() {
+        return this.$data.config.location.path;
+      },
+      // set(val) {
+      //   this.$data.config.location.path = val;
+      // },
     },
   },
 };
