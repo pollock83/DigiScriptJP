@@ -196,6 +196,20 @@ export default {
         this.computeScriptBoundaries();
       }
 
+      if (this.isScriptLeader) {
+        const vueContext = this;
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            vueContext.nextLineHandler();
+          }
+          if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            vueContext.prevLineHandler();
+          }
+        });
+      }
+
       this.fullLoad = true;
     }
   },
@@ -336,6 +350,64 @@ export default {
           },
         });
       }
+    },
+    prevLineHandler() {
+      const scrollToLine = document.getElementById(this.previousLine);
+      if (scrollToLine != null) {
+        scrollToLine.scrollIntoView({
+          behavior: 'instant',
+        });
+      }
+    },
+    nextLineHandler() {
+      const nextLineSplit = this.currentLine.split("_");
+      const nextLine = this.getNextLineForIndex(parseInt(nextLineSplit[1], 10), parseInt(nextLineSplit[3], 10));
+      const scrollToLine = document.getElementById(`page_${nextLine[0]}_line_${nextLine[1]}`);
+      if (scrollToLine != null) {
+        scrollToLine.scrollIntoView({
+          behavior: 'instant',
+        });
+      }
+    },
+    getNextLineForIndex(pageIndex, lineIndex) {
+      if (lineIndex < this.GET_SCRIPT_PAGE(pageIndex).length - 1) {
+        let loopLineIndex = lineIndex + 1;
+        let loopLine = this.GET_SCRIPT_PAGE(pageIndex)[loopLineIndex];
+        while (this.isWholeLineCut(loopLine)) {
+          loopLineIndex += 1;
+          if (loopLineIndex >= this.GET_SCRIPT_PAGE(pageIndex).length) {
+            loopLine = null;
+            break;
+          }
+          loopLine = this.GET_SCRIPT_PAGE(pageIndex)[loopLineIndex];
+        }
+        if (loopLine != null) {
+          return [pageIndex, loopLineIndex];
+        }
+      }
+
+      let loopPageNo = pageIndex + 1;
+      while (loopPageNo <= this.currentMaxPage) {
+        let loopPage = null;
+        loopPage = this.GET_SCRIPT_PAGE(loopPageNo);
+        if (loopPage.length > 0) {
+          let loopLineIndex = 0;
+          let loopLine = this.GET_SCRIPT_PAGE(loopPageNo)[loopLineIndex];
+          while (this.isWholeLineCut(loopLine)) {
+            loopLineIndex += 1;
+            if (loopLineIndex >= this.GET_SCRIPT_PAGE(loopPageNo).length) {
+              loopLine = null;
+              break;
+            }
+            loopLine = this.GET_SCRIPT_PAGE(loopPageNo)[loopLineIndex];
+          }
+          if (loopLine != null) {
+            return [loopPageNo, loopLineIndex];
+          }
+        }
+        loopPageNo += 1;
+      }
+      return null;
     },
     getPreviousLineForIndex(pageIndex, lineIndex) {
       if (lineIndex > 0) {
